@@ -32,7 +32,7 @@ local repo = {
     end,
 }
 dofile('server/service.lua')
-local service = PlateService(core, repo, items)
+local service = PlateService(core, repo, items, function() end)
 service:change(1, 1, true)
 assert(inventory == 1 and current == 'ORIGINAL' and fake == nil, 'removing an ordinary plate must do nothing')
 owns = false

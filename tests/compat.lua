@@ -1,9 +1,11 @@
 -- Run with: lua tests/compat.lua
 local events, handlers, exposed, callbacks, actions = {}, {}, {}, {}, {}
-Config = { Framework = 'qb', Inventory = 'qb', Storage = { qb = {} } }
+Config = { Framework = 'qb', Inventory = 'qb', Keys = 'qb', Storage = { qb = {} } }
 CoreServers = { qb = function() return { usable = function() end } end }
 Inventories = { qb = {} }
-PlateRepository = function() return { original = function(_, plate) if plate == 'FAKE' then return 'REAL' end end, fake = function() return 'FAKE' end } end
+ServerKeys = { qb = function() end }
+MySQL = { ready = function(fn) fn() end }
+PlateRepository = function() return { ensureSchema = function() return false end, original = function(_, plate) if plate == 'FAKE' then return 'REAL' end end, fake = function() return 'FAKE' end } end
 PlateService = function() return { change = function(_, src, id, removing) actions[#actions + 1] = { src, id, removing } end } end
 function GetCurrentResourceName() return 'od_fakeplates' end
 function RegisterNetEvent(name, fn) events[name] = fn end

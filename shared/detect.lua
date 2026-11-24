@@ -20,4 +20,6 @@ if Config.Inventory == 'auto' then
     elseif Config.Framework == 'esx' then Config.Inventory = 'esx'
     else Config.Inventory = 'qb' end
 end
-if Config.Keys == 'auto' then Config.Keys = running('qb-vehiclekeys') and 'qb' or 'none' end
+if Config.Keys == 'auto' then
+    Config.Keys = first({ { 'qbx', 'qbx_vehiclekeys' }, { 'qb', 'qb-vehiclekeys' } }) or 'none'
+end

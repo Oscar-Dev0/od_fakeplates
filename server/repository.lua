@@ -4,10 +4,30 @@ local function identifier(value)
     return '`' .. value .. '`'
 end
 function PlateRepository:init(storage)
+    self.tableName = storage.vehicles
+    self.ownerName = storage.owner
     self.vehicles = identifier(storage.vehicles)
     self.owner = identifier(storage.owner)
     self.containers = {}
     for _, name in ipairs(Config.ContainerTables) do self.containers[#self.containers + 1] = identifier(name) end
+end
+function PlateRepository:ensureSchema()
+    local function hasColumn(column)
+        return MySQL.scalar.await([[
+            SELECT 1 FROM information_schema.COLUMNS
+            WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ? LIMIT 1
+        ]], { self.tableName, column }) ~= nil
+    end
+    assert(hasColumn('plate'), ('Table %s is missing the plate column or does not exist'):format(self.tableName))
+    assert(hasColumn(self.ownerName), ('Table %s is missing the %s column'):format(self.tableName, self.ownerName))
+    if hasColumn('fakeplate') then return false end
+    assert(Config.AutoCreateColumn, ('Table %s is missing fakeplate and automatic creation is disabled'):format(self.tableName))
+    local ok, err = pcall(MySQL.query.await,
+        ('ALTER TABLE %s ADD COLUMN `fakeplate` VARCHAR(8) NULL DEFAULT NULL'):format(self.vehicles))
+    -- Another resource or operator might have created the column during the check.
+    if not ok and not hasColumn('fakeplate') then error(err) end
+    assert(hasColumn('fakeplate'), ('Could not create fakeplate in %s'):format(self.tableName))
+    return ok
 end
 function PlateRepository:original(fake)
     return MySQL.scalar.await(('SELECT plate FROM %s WHERE fakeplate = ? LIMIT 1'):format(self.vehicles), { fake })

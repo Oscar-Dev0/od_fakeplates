@@ -1,6 +1,6 @@
 PlateService = Class()
-function PlateService:init(core, repository, inventory)
-    self.core, self.repo, self.inventory, self.busy, self.reserved = core, repository, inventory, {}, {}
+function PlateService:init(core, repository, inventory, giveKeys)
+    self.core, self.repo, self.inventory, self.giveKeys, self.busy, self.reserved = core, repository, inventory, giveKeys, {}, {}
 end
 function PlateService:notify(src, message, kind)
     TriggerClientEvent('od_fakeplates:client:notify', src, message, kind or 'error')
@@ -44,7 +44,8 @@ function PlateService:change(src, netId, removing)
             self:notify(src, Translate('database_failed')); return
         end
         SetVehicleNumberPlateText(vehicle, newPlate)
-        TriggerClientEvent('od_fakeplates:client:keys', src, newPlate)
+        local keyOk, keyError = pcall(self.giveKeys, src, vehicle, newPlate)
+        if not keyOk then print('[od_fakeplates] Keys bridge error: ' .. tostring(keyError)) end
         if removing and not self.inventory.add(player, src) then
             print(('[od_fakeplates] Could not return fake plate to %s'):format(src))
             self:notify(src, Translate('inventory_full'))

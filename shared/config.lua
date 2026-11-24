@@ -3,11 +3,12 @@ Config = {}
 Config.Framework = 'auto' -- auto, qb, esx, qbx
 Config.Target = 'auto' -- auto, qb, ox
 Config.Inventory = 'auto' -- auto, qb, esx, ox
-Config.Keys = 'auto' -- auto, qb, none
+Config.Keys = 'auto' -- auto, qbx, qb, none
 Config.Locale = 'en' -- en, es
 Config.Item = 'fakeplate'
 Config.Duration = 4000
 Config.MaxDistance = 5.0
+Config.AutoCreateColumn = true -- Create the fakeplate column when it is missing.
 -- DB identifiers are trusted administrator configuration, never client input.
 Config.Storage = {
     qb = { vehicles = 'player_vehicles', owner = 'citizenid' },
